@@ -1,6 +1,6 @@
-import { Author } from '.prisma/client';
 import { ConflictException, Injectable } from '@nestjs/common';
-import { PrismaService } from 'src/shared/services/prisma.service';
+import { Author } from '@prisma/client';
+import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class AuthorsService {
@@ -9,15 +9,17 @@ export class AuthorsService {
   public getAll(): Promise<Author[]> {
     return this.prismaService.author.findMany();
   }
+
   public getById(id: Author['id']): Promise<Author> | null {
     return this.prismaService.author.findUnique({
       where: { id },
     });
   }
-  public async create(authorData: Omit<Author, 'id'>): Promise<Author> {
+
+  public async create(AuthorData: Omit<Author, 'id'>): Promise<Author> {
     try {
       return await this.prismaService.author.create({
-        data: authorData,
+        data: AuthorData,
       });
     } catch (error) {
       if (error.code === 'P2002')
@@ -25,14 +27,15 @@ export class AuthorsService {
       throw error;
     }
   }
+
   public async updateById(
     id: Author['id'],
-    authorData: Omit<Author, 'id'>,
+    AuthorData: Omit<Author, 'id'>,
   ): Promise<Author> {
     try {
       return await this.prismaService.author.update({
         where: { id },
-        data: authorData,
+        data: AuthorData,
       });
     } catch (error) {
       if (error.code === 'P2002')
@@ -40,6 +43,7 @@ export class AuthorsService {
       throw error;
     }
   }
+
   public deleteById(id: Author['id']): Promise<Author> {
     return this.prismaService.author.delete({
       where: { id },
