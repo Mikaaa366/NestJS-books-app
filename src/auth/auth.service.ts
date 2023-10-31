@@ -3,12 +3,14 @@ import { UsersService } from 'src/users/users.service';
 import { RegisterDTO } from './dtos/register-auth.dto';
 import * as bcrypt from 'bcryptjs';
 import { JwtService } from '@nestjs/jwt/dist';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AuthService {
   constructor(
     private usersService: UsersService,
     private jwtService: JwtService,
+    private configService: ConfigService,
   ) {}
 
   public async register(registrationData: RegisterDTO) {
@@ -26,6 +28,7 @@ export class AuthService {
       user &&
       (await bcrypt.compare(password, user.password.hashedPassword))
     ) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { password, ...result } = user;
       return result;
     }
@@ -36,8 +39,8 @@ export class AuthService {
     const payload = { email: user.email, sub: user.id };
 
     const accessToken = this.jwtService.sign(payload, {
-      secret: 'something13',
-      expiresIn: '12h',
+      secret: this.configService.get('jwt.secret'),
+      expiresIn: this.configService.get('jwt.expiresIn'),
     });
 
     return {
